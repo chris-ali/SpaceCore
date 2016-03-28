@@ -177,14 +177,14 @@ public class PlayerShip {
 		Vector3f.add(position, ForwardCopy, position);
 
 		// Build two quats, for a global roll then pitch
-		Quaternion QRoll = new Quaternion();
-		QRoll.setFromAxisAngle(new Vector4f(forward.x, forward.y, forward.z, dRoll));
-		Quaternion QPitch = new Quaternion();
-		QPitch.setFromAxisAngle(new Vector4f(right.x, right.y, right.z, -dPitch));
+		Quaternion qRoll = new Quaternion();
+		qRoll.setFromAxisAngle(new Vector4f(forward.x, forward.y, forward.z, dRoll));
+		Quaternion qPitch = new Quaternion();
+		qPitch.setFromAxisAngle(new Vector4f(right.x, right.y, right.z, -dPitch));
 
 		// Note: we must explicitly multiply out each dQ, not just the total
-		Quaternion.mul(qResult, QRoll, qResult);
-		Quaternion.mul(qResult, QPitch, qResult);
+		Quaternion.mul(qResult, qRoll, qResult);
+		Quaternion.mul(qResult, qPitch, qResult);
 		qResult.normalise();
 	}
 
@@ -291,17 +291,17 @@ public class PlayerShip {
 
 		// Make sure the model never goes below the surface, and if
 		// it does, push it back up, but if it does too much, crash ship
-		float MaxD = 0.0f;
+		float maxD = 0.0f;
 		for (Vector3f Vertex : vertices) {
-			if (Vertex.y < 0.0f && Vertex.y < MaxD)
-				MaxD = Vertex.y;
+			if (Vertex.y < 0.0f && Vertex.y < maxD)
+				maxD = Vertex.y;
 		}
 
 		// Physics check: did we crash, or did we bounce
 		/*
 		 * if(Math.abs(MaxD) > 0.02) Crashed = true; else
-		 */ if (Math.abs(MaxD) > 0.0f) {
-			position.y += Math.abs(MaxD);
+		 */ if (Math.abs(maxD) > 0.0f) {
+			position.y += Math.abs(maxD);
 			bounced = true;
 		}
 
@@ -327,8 +327,8 @@ public class PlayerShip {
 
 	public Vector3f ApplyQuatToPoint(Quaternion Q, Vector3f vt) {
 		// Just multiply the point against the matrix
-		float[] QMatrix = new float[16];
-		createMatrix(QMatrix, qResult);
+		float[] qMatrix = new float[16];
+		createMatrix(qMatrix, qResult);
 
 		Vector3f vert = new Vector3f();
 		/*
@@ -336,9 +336,9 @@ public class PlayerShip {
 		 * vert.y = QMatrix[4] * vt.x + QMatrix[5] * vt.y + QMatrix[6] * vt.z;
 		 * vert.z = QMatrix[8] * vt.x + QMatrix[9] * vt.y + QMatrix[10] * vt.z;
 		 */
-		vert.x = QMatrix[0] * vt.x + QMatrix[4] * vt.y + QMatrix[8] * vt.z;
-		vert.y = QMatrix[1] * vt.x + QMatrix[5] * vt.y + QMatrix[9] * vt.z;
-		vert.z = QMatrix[2] * vt.x + QMatrix[6] * vt.y + QMatrix[10] * vt.z;
+		vert.x = qMatrix[0] * vt.x + qMatrix[4] * vt.y + qMatrix[8] * vt.z;
+		vert.y = qMatrix[1] * vt.x + qMatrix[5] * vt.y + qMatrix[9] * vt.z;
+		vert.z = qMatrix[2] * vt.x + qMatrix[6] * vt.y + qMatrix[10] * vt.z;
 		return vert;
 
 		/*
@@ -363,14 +363,14 @@ public class PlayerShip {
 	// Returns the intersection point of the vector (described as two points)
 	// onto the y=0 plane (or simply the XZ plane)
 	public Vector3f getPlaneIntersect(Vector3f vf, Vector3f vi) {
-		Vector3f LineDir = Vector3f.sub(vf, vi, null);
-		LineDir.normalise();
+		Vector3f lineDir = Vector3f.sub(vf, vi, null);
+		lineDir.normalise();
 
-		Vector3f PlaneNormal = new Vector3f(0, 1, 0);
+		Vector3f planeNormal = new Vector3f(0, 1, 0);
 		Vector3f neg_Vi = new Vector3f(-vi.x, -vi.y, -vi.z);
 
-		float d = Vector3f.dot(neg_Vi, PlaneNormal) / Vector3f.dot(LineDir, PlaneNormal);
-		Vector3f pt = new Vector3f(LineDir);
+		float d = Vector3f.dot(neg_Vi, planeNormal) / Vector3f.dot(lineDir, planeNormal);
+		Vector3f pt = new Vector3f(lineDir);
 		pt.scale(d);
 		Vector3f.add(pt, vi, pt);
 
@@ -412,24 +412,24 @@ public class PlayerShip {
 	}
 
 	// Get the look vectors for the camera
-	public void GetCameraVectors(Vector3f CameraPos, Vector3f CameraTarget, Vector3f CameraUp) {
+	public void GetCameraVectors(Vector3f cameraPos, Vector3f cameraTarget, Vector3f cameraUp) {
 		// Copy all vectors as needed for the camera
-		CameraPos.set(position.x, position.y, position.z);
-		CameraTarget.set(forward.x + position.x, forward.y + position.y, forward.z + position.z);
-		CameraUp.set(up.x, up.y, up.z);
+		cameraPos.set(position.x, position.y, position.z);
+		cameraTarget.set(forward.x + position.x, forward.y + position.y, forward.z + position.z);
+		cameraUp.set(up.x, up.y, up.z);
 	}
 
 	// Get yaw of ship
 	public float GetYaw() {
 		// Cast down the forward and right vectors onto the XZ plane
-		Vector3f FFlat = new Vector3f(forward.x, 0f, forward.z);
-		Vector3f RFlat = new Vector3f(1f, 0f, 0f);
+		Vector3f fFlat = new Vector3f(forward.x, 0f, forward.z);
+		Vector3f rFlat = new Vector3f(1f, 0f, 0f);
 
 		// Angle between
-		float Ang = Vector3f.angle(RFlat, FFlat);
-		if (Vector3f.cross(RFlat, FFlat, null).y < 0)
-			Ang = (float) (Math.PI * 2.0) - Ang;
-		return Ang;
+		float ang = Vector3f.angle(rFlat, fFlat);
+		if (Vector3f.cross(rFlat, fFlat, null).y < 0)
+			ang = (float) (Math.PI * 2.0) - ang;
+		return ang;
 	}
 
 	// Get velocity

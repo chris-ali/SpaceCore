@@ -160,7 +160,7 @@ public class Main {
 		// float centerx, float centery, float centerz, float upx, float upy,
 		// float upz)
 		time += 0.001f;
-		float CDist = 6;
+		float cDist = 6;
 
 		// Set the camera on the back of the
 		testShip.GetCameraVectors(cameraPos, cameraTarget, cameraUp);
@@ -168,12 +168,12 @@ public class Main {
 		// Tail-plane camera
 		if (cameraType) {
 			// Extend out the camera by length
-			Vector3f Dir = new Vector3f();
-			Vector3f.sub(cameraPos, cameraTarget, Dir);
-			Dir.normalise();
-			Dir.scale(4);
-			Dir.y += 0.1f;
-			Vector3f.add(cameraPos, Dir, cameraPos);
+			Vector3f dir = new Vector3f();
+			Vector3f.sub(cameraPos, cameraTarget, dir);
+			dir.normalise();
+			dir.scale(4);
+			dir.y += 0.1f;
+			Vector3f.add(cameraPos, dir, cameraPos);
 			cameraPos.y += 1;
 
 			// Little error correction: always make the camera above ground
@@ -185,7 +185,7 @@ public class Main {
 		}
 		// Overview
 		else {
-			GLU.gluLookAt(CDist * (float) Math.cos(time), CDist, CDist * (float) Math.sin(time), cameraPos.x,
+			GLU.gluLookAt(cDist * (float) Math.cos(time), cDist, cDist * (float) Math.sin(time), cameraPos.x,
 					cameraPos.y, cameraPos.z, 0, 1, 0);
 		}
 
