@@ -18,16 +18,16 @@ import org.lwjgl.util.vector.Vector3f;
 
 // Star point
 class StarPoint {
-	Vector3f Pt = new Vector3f();
-	Vector3f Color = new Vector3f();
-	float Scale;
+	Vector3f pt = new Vector3f();
+	Vector3f color = new Vector3f();
+	float scale;
 }
 
 // Models to render
 class Models {
-	Vector3f Pt = new Vector3f();
+	Vector3f pt = new Vector3f();
 	Model model;
-	float Yaw;
+	float yaw;
 }
 
 /**
@@ -35,18 +35,18 @@ class Models {
  */
 public class World {
 	// Box size
-	public static float SkyboxSize = 32.0f;
-	public static float WorldSize = 1024.0f;
+	public static float skyboxSize = 32.0f;
+	public static float worldSize = 1024.0f;
 
 	// List of stars (list of Vector3f)
-	ArrayList<StarPoint> StarList;
+	ArrayList<StarPoint> starList;
 
 	// Load a bunch of objects
-	ArrayList<Models> ModelList;
+	ArrayList<Models> modelList;
 
 	public World() {
 		// Create a list and fill with a bunch of stars
-		StarList = new ArrayList<StarPoint>();
+		starList = new ArrayList<StarPoint>();
 		for (int i = 0; i < 1000; i++) {
 			// New star
 			StarPoint Star = new StarPoint();
@@ -55,32 +55,32 @@ public class World {
 			double u = 2f * Math.random() - 1f;
 			double v = Math.random() * 2 * Math.PI;
 
-			Star.Pt.x = (float) (Math.sqrt(1f - Math.pow(u, 2.0)) * Math.cos(v));
-			Star.Pt.z = (float) (Math.sqrt(1f - Math.pow(u, 2.0)) * Math.sin(v));
-			Star.Pt.y = (float) Math.abs(u);
-			Star.Pt.scale(SkyboxSize / 2); // Scale out from the center
+			Star.pt.x = (float) (Math.sqrt(1f - Math.pow(u, 2.0)) * Math.cos(v));
+			Star.pt.z = (float) (Math.sqrt(1f - Math.pow(u, 2.0)) * Math.sin(v));
+			Star.pt.y = (float) Math.abs(u);
+			Star.pt.scale(skyboxSize / 2); // Scale out from the center
 
 			// Scale up
-			Star.Scale = 3f * (float) Math.random();
+			Star.scale = 3f * (float) Math.random();
 
 			// Color
 			float Gray = 0.5f + 0.5f * (float) Math.random();
-			Star.Color.x = Gray;
-			Star.Color.y = Gray;
-			Star.Color.z = Gray;
+			Star.color.x = Gray;
+			Star.color.y = Gray;
+			Star.color.z = Gray;
 
 			// Push star into list
-			StarList.add(Star);
+			starList.add(Star);
 		}
 
 		// Load a bunch of models
-		ModelList = new ArrayList<Models>();
+		modelList = new ArrayList<Models>();
 
 		// Load road strip
 		Models model = new Models();
 		model.model = OBJLoader.load("src/Road.obj");
-		model.Yaw = 0f;
-		ModelList.add(model);
+		model.yaw = 0f;
+		modelList.add(model);
 
 		// Load a bunch of rocks..
 		for (int i = 0; i < 100; i++) {
@@ -88,13 +88,13 @@ public class World {
 
 			Models newModel = new Models();
 			newModel.model = OBJLoader.load("src/Rock" + Index + ".obj");
-			newModel.Yaw = (float) (Math.random() * 2.0 * Math.PI);
+			newModel.yaw = (float) (Math.random() * 2.0 * Math.PI);
 
-			newModel.Pt.x = (float) (Math.random() * 2.0 - 1.0) * SkyboxSize;
-			newModel.Pt.z = (float) (Math.random() * 2.0 - 1.0) * SkyboxSize;
-			newModel.Pt.y = 0f;
+			newModel.pt.x = (float) (Math.random() * 2.0 - 1.0) * skyboxSize;
+			newModel.pt.z = (float) (Math.random() * 2.0 - 1.0) * skyboxSize;
+			newModel.pt.y = 0f;
 
-			ModelList.add(newModel);
+			modelList.add(newModel);
 		}
 	}
 
@@ -130,17 +130,17 @@ public class World {
 		GL11.glTranslatef(Pos.x, 0, Pos.z);
 
 		Vector3f Color = new Vector3f(236.0f / 255.0f, 200.0f / 255.0f, 122.0f / 255.0f);
-		RenderGround(WorldSize, Color);
+		RenderGround(worldSize, Color);
 
 		GL11.glPopMatrix();
 
 		// Render all the objects
-		for (Models model : ModelList) {
+		for (Models model : modelList) {
 			GL11.glPushMatrix();
 
 			// Render ground and right below
-			GL11.glTranslatef(model.Pt.x, model.Pt.y, model.Pt.z);
-			GL11.glRotatef((float) Math.toDegrees(model.Yaw), 0, 1, 0);
+			GL11.glTranslatef(model.pt.x, model.pt.y, model.pt.z);
+			GL11.glRotatef((float) Math.toDegrees(model.yaw), 0, 1, 0);
 			RenderModel(model.model);
 
 			GL11.glPopMatrix();
@@ -180,10 +180,10 @@ public class World {
 		// Polygon & texture map
 		// Top has one constant color
 		glColor3f(TopColor.x, TopColor.y, TopColor.z);
-		glVertex3f(-SkyboxSize, SkyboxSize, -SkyboxSize);
-		glVertex3f(SkyboxSize, SkyboxSize, -SkyboxSize);
-		glVertex3f(SkyboxSize, SkyboxSize, SkyboxSize);
-		glVertex3f(-SkyboxSize, SkyboxSize, SkyboxSize);
+		glVertex3f(-skyboxSize, skyboxSize, -skyboxSize);
+		glVertex3f(skyboxSize, skyboxSize, -skyboxSize);
+		glVertex3f(skyboxSize, skyboxSize, skyboxSize);
+		glVertex3f(-skyboxSize, skyboxSize, skyboxSize);
 
 		glEnd();
 
@@ -192,12 +192,12 @@ public class World {
 
 		// Polygon & texture map
 		glColor3f(TopColor.x, TopColor.y, TopColor.z);
-		glVertex3f(SkyboxSize, SkyboxSize, -SkyboxSize);
+		glVertex3f(skyboxSize, skyboxSize, -skyboxSize);
 		glColor3f(BottomColor.x, BottomColor.y, BottomColor.z);
-		glVertex3f(SkyboxSize, -SkyboxSize, -SkyboxSize);
-		glVertex3f(SkyboxSize, -SkyboxSize, SkyboxSize);
+		glVertex3f(skyboxSize, -skyboxSize, -skyboxSize);
+		glVertex3f(skyboxSize, -skyboxSize, skyboxSize);
 		glColor3f(TopColor.x, TopColor.y, TopColor.z);
-		glVertex3f(SkyboxSize, SkyboxSize, SkyboxSize);
+		glVertex3f(skyboxSize, skyboxSize, skyboxSize);
 
 		glEnd();
 
@@ -206,12 +206,12 @@ public class World {
 
 		// Polygon & texture map
 		glColor3f(TopColor.x, TopColor.y, TopColor.z);
-		glVertex3f(-SkyboxSize, SkyboxSize, SkyboxSize);
+		glVertex3f(-skyboxSize, skyboxSize, skyboxSize);
 		glColor3f(BottomColor.x, BottomColor.y, BottomColor.z);
-		glVertex3f(-SkyboxSize, -SkyboxSize, SkyboxSize);
-		glVertex3f(-SkyboxSize, -SkyboxSize, -SkyboxSize);
+		glVertex3f(-skyboxSize, -skyboxSize, skyboxSize);
+		glVertex3f(-skyboxSize, -skyboxSize, -skyboxSize);
 		glColor3f(TopColor.x, TopColor.y, TopColor.z);
-		glVertex3f(-SkyboxSize, SkyboxSize, -SkyboxSize);
+		glVertex3f(-skyboxSize, skyboxSize, -skyboxSize);
 
 		glEnd();
 
@@ -220,12 +220,12 @@ public class World {
 
 		// Polygon & texture map
 		glColor3f(TopColor.x, TopColor.y, TopColor.z);
-		glVertex3f(SkyboxSize, SkyboxSize, SkyboxSize);
+		glVertex3f(skyboxSize, skyboxSize, skyboxSize);
 		glColor3f(BottomColor.x, BottomColor.y, BottomColor.z);
-		glVertex3f(SkyboxSize, -SkyboxSize, SkyboxSize);
-		glVertex3f(-SkyboxSize, -SkyboxSize, SkyboxSize);
+		glVertex3f(skyboxSize, -skyboxSize, skyboxSize);
+		glVertex3f(-skyboxSize, -skyboxSize, skyboxSize);
 		glColor3f(TopColor.x, TopColor.y, TopColor.z);
-		glVertex3f(-SkyboxSize, SkyboxSize, SkyboxSize);
+		glVertex3f(-skyboxSize, skyboxSize, skyboxSize);
 
 		glEnd();
 
@@ -234,12 +234,12 @@ public class World {
 
 		// Polygon & texture map
 		glColor3f(TopColor.x, TopColor.y, TopColor.z);
-		glVertex3f(-SkyboxSize, SkyboxSize, -SkyboxSize);
+		glVertex3f(-skyboxSize, skyboxSize, -skyboxSize);
 		glColor3f(BottomColor.x, BottomColor.y, BottomColor.z);
-		glVertex3f(-SkyboxSize, -SkyboxSize, -SkyboxSize);
-		glVertex3f(SkyboxSize, -SkyboxSize, -SkyboxSize);
+		glVertex3f(-skyboxSize, -skyboxSize, -skyboxSize);
+		glVertex3f(skyboxSize, -skyboxSize, -skyboxSize);
 		glColor3f(TopColor.x, TopColor.y, TopColor.z);
-		glVertex3f(SkyboxSize, SkyboxSize, -SkyboxSize);
+		glVertex3f(skyboxSize, skyboxSize, -skyboxSize);
 
 		glEnd();
 
@@ -250,11 +250,11 @@ public class World {
 	// Render the stars
 	public void RenderStars() {
 		// Render all stars
-		for (StarPoint Star : StarList) {
-			glPointSize(Star.Scale);
-			glColor3f(Star.Color.x, Star.Color.y, Star.Color.z);
+		for (StarPoint Star : starList) {
+			glPointSize(Star.scale);
+			glColor3f(Star.color.x, Star.color.y, Star.color.z);
 			glBegin(GL_POINTS);
-			glVertex3f(Star.Pt.x, Star.Pt.y, Star.Pt.z);
+			glVertex3f(Star.pt.x, Star.pt.y, Star.pt.z);
 			glEnd();
 		}
 	}

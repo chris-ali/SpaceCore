@@ -20,29 +20,29 @@ import org.lwjgl.util.vector.Vector4f;
  */
 public class PlayerShip {
 	// Global position and local vectors
-	private Vector3f Position;
-	private Vector3f Forward, Up, Right;
+	private Vector3f position;
+	private Vector3f forward, up, right;
 
 	// Pitch and rolls
 	@SuppressWarnings("unused")
-	private float Pitch, Roll;
+	private float pitch, roll;
 
 	// TEST VARIABLE
-	Quaternion QResult;
+	Quaternion qResult;
 
 	// Ship variable
 	Model model = null;
 
 	// Player ship has a current velocity and target velocity
-	float RealVelocity, TargetVelocity;
+	float realVelocity, targetVelocity;
 
 	// Velocities
 	public static float VEL_dMAX = 0.005f;
 	public static float VEL_MAX = 0.15f;
 
 	// Did we crash or bounce?
-	boolean Bounced;
-	boolean Crashed;
+	boolean bounced;
+	boolean crashed;
 
 	// Constructor does nothing
 	public PlayerShip() {
@@ -60,29 +60,29 @@ public class PlayerShip {
 
 	public void InitShip() {
 		// Default position slight above ground
-		Position = new Vector3f(0, 0.1f, 0);
+		position = new Vector3f(0, 0.1f, 0);
 
 		// Set forward to Z+
-		Forward = new Vector3f(0, 0, 1);
-		Up = new Vector3f(0, 1, 0);
-		Right = new Vector3f(-1, 0, 0);
+		forward = new Vector3f(0, 0, 1);
+		up = new Vector3f(0, 1, 0);
+		right = new Vector3f(-1, 0, 0);
 
 		// Blah testing...
-		QResult = new Quaternion();
+		qResult = new Quaternion();
 
 		// Default velocities to zero
-		RealVelocity = TargetVelocity = 0;
-		Pitch = Roll = 0.0f;
+		realVelocity = targetVelocity = 0;
+		pitch = roll = 0.0f;
 
 		// No nown states
-		Bounced = false;
-		Crashed = false;
+		bounced = false;
+		crashed = false;
 	}
 
 	// Check for user events
 	public void Update() {
 		// If we ever crash, reset everything
-		if (Crashed) {
+		if (crashed) {
 			System.out.println("Crashed!");
 			InitShip();
 		}
@@ -105,59 +105,59 @@ public class PlayerShip {
 
 		// Update velocities
 		if (Keyboard.isKeyDown(Keyboard.KEY_R))
-			TargetVelocity += VEL_dMAX;
+			targetVelocity += VEL_dMAX;
 		if (Keyboard.isKeyDown(Keyboard.KEY_F))
-			TargetVelocity -= VEL_dMAX;
+			targetVelocity -= VEL_dMAX;
 
 		// Bounds check the target velocity
-		if (TargetVelocity > VEL_MAX)
-			TargetVelocity = VEL_MAX;
-		else if (TargetVelocity < 0.0f)
-			TargetVelocity = 0;
+		if (targetVelocity > VEL_MAX)
+			targetVelocity = VEL_MAX;
+		else if (targetVelocity < 0.0f)
+			targetVelocity = 0;
 
 		// Update the real velocity over time
 		// NOTE: The delta has to be smaller than the target velocity
-		if (TargetVelocity > RealVelocity)
-			RealVelocity += VEL_dMAX * 0.5f;
-		else if (TargetVelocity < RealVelocity)
-			RealVelocity -= VEL_dMAX * 0.5f;
+		if (targetVelocity > realVelocity)
+			realVelocity += VEL_dMAX * 0.5f;
+		else if (targetVelocity < realVelocity)
+			realVelocity -= VEL_dMAX * 0.5f;
 
 		// Save the total pitch and roll
-		Pitch += dPitch;
-		Roll += dRoll;
+		pitch += dPitch;
+		roll += dRoll;
 
 		/*** EULER APPROACH with pure angles (bad) ***/
 
 		// forward = unit(forward * cos(angle) + up * sin(angle));
 		// up = right.cross(forward);
-		Forward.scale((float) Math.cos(dPitch));
-		Up.scale((float) Math.sin(dPitch));
-		Forward = Vector3f.add(Forward, Up, null);
-		Up = Vector3f.cross(Right, Forward, null);
+		forward.scale((float) Math.cos(dPitch));
+		up.scale((float) Math.sin(dPitch));
+		forward = Vector3f.add(forward, up, null);
+		up = Vector3f.cross(right, forward, null);
 
 		// Normalize
-		Forward.normalise();
-		Up.normalise();
+		forward.normalise();
+		up.normalise();
 
 		// right = unit(right * cos(angle) + up * sin(angle));
 		// up = right.cross(forward);
-		Right.scale((float) Math.cos(dRoll));
-		Up.scale((float) Math.sin(dRoll));
-		Right = Vector3f.add(Right, Up, null);
-		Up = Vector3f.cross(Right, Forward, null);
+		right.scale((float) Math.cos(dRoll));
+		up.scale((float) Math.sin(dRoll));
+		right = Vector3f.add(right, up, null);
+		up = Vector3f.cross(right, forward, null);
 
 		// Normalize
-		Right.normalise();
-		Up.normalise();
+		right.normalise();
+		up.normalise();
 
 		// Position changes over time based on the forward vector
 		// Note we have a tiny bit of lift added
-		Vector3f ForwardCopy = new Vector3f(Forward);
-		ForwardCopy.scale(RealVelocity);
+		Vector3f ForwardCopy = new Vector3f(forward);
+		ForwardCopy.scale(realVelocity);
 
 		// Gravity factor and normalized velocity
-		float Gravity = 0.05f;
-		float NVelocity = Math.min((RealVelocity / VEL_MAX) * 3, 1); // Note: 4
+		float gravity = 0.05f;
+		float nVelocity = Math.min((realVelocity / VEL_MAX) * 3, 1); // Note: 4
 																		// is to
 																		// make
 																		// 1/4
@@ -167,39 +167,39 @@ public class PlayerShip {
 																		// point
 
 		// Computer the "up" force that attempts to counter gravity
-		Vector3f TotalUp = new Vector3f(Up);
-		TotalUp.scale(NVelocity * Gravity); // Linear relationship: the faster,
+		Vector3f totalUp = new Vector3f(up);
+		totalUp.scale(nVelocity * gravity); // Linear relationship: the faster,
 											// the more lift
-		TotalUp.y -= Gravity;
+		totalUp.y -= gravity;
 
 		// Add the lift component to the forward vector
 		// Vector3f.add(ForwardCopy, TotalUp, ForwardCopy);
-		Vector3f.add(Position, ForwardCopy, Position);
+		Vector3f.add(position, ForwardCopy, position);
 
 		// Build two quats, for a global roll then pitch
 		Quaternion QRoll = new Quaternion();
-		QRoll.setFromAxisAngle(new Vector4f(Forward.x, Forward.y, Forward.z, dRoll));
+		QRoll.setFromAxisAngle(new Vector4f(forward.x, forward.y, forward.z, dRoll));
 		Quaternion QPitch = new Quaternion();
-		QPitch.setFromAxisAngle(new Vector4f(Right.x, Right.y, Right.z, -dPitch));
+		QPitch.setFromAxisAngle(new Vector4f(right.x, right.y, right.z, -dPitch));
 
 		// Note: we must explicitly multiply out each dQ, not just the total
-		Quaternion.mul(QResult, QRoll, QResult);
-		Quaternion.mul(QResult, QPitch, QResult);
-		QResult.normalise();
+		Quaternion.mul(qResult, QRoll, qResult);
+		Quaternion.mul(qResult, QPitch, qResult);
+		qResult.normalise();
 	}
 
 	// Render the ship
 	public void Render() {
 		// Translate to position
 		GL11.glPushMatrix();
-		GL11.glTranslatef(Position.x, Position.y, Position.z);
+		GL11.glTranslatef(position.x, position.y, position.z);
 
 		// Why isn't this a built-in feature of LWJGL
-		float[] QMatrix = new float[16];
-		createMatrix(QMatrix, QResult);
+		float[] qMatrix = new float[16];
+		createMatrix(qMatrix, qResult);
 
 		FloatBuffer Buffer = BufferUtils.createFloatBuffer(16);
-		Buffer.put(QMatrix);
+		Buffer.put(qMatrix);
 		Buffer.position(0);
 
 		GL11.glMultMatrix(Buffer);
@@ -268,7 +268,7 @@ public class PlayerShip {
 		GL11.glPolygonOffset(-1.0f, -1.0f);
 
 		GL11.glTranslatef(0, 0.001f, 0);
-		renderShadow(Position);
+		renderShadow(position);
 
 		GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
 
@@ -281,7 +281,7 @@ public class PlayerShip {
 		for (Vector3f Vertex : model.vertices) {
 			// Apply rotation then translation
 			Vector3f vt = new Vector3f(Vertex);
-			vt = ApplyQuatToPoint(QResult, vt);
+			vt = ApplyQuatToPoint(qResult, vt);
 			Vector3f.add(vt, Translation, vt);
 			vertices.add(vt);
 		}
@@ -301,8 +301,8 @@ public class PlayerShip {
 		/*
 		 * if(Math.abs(MaxD) > 0.02) Crashed = true; else
 		 */ if (Math.abs(MaxD) > 0.0f) {
-			Position.y += Math.abs(MaxD);
-			Bounced = true;
+			position.y += Math.abs(MaxD);
+			bounced = true;
 		}
 
 		// Assume the light source is just high above
@@ -328,7 +328,7 @@ public class PlayerShip {
 	public Vector3f ApplyQuatToPoint(Quaternion Q, Vector3f vt) {
 		// Just multiply the point against the matrix
 		float[] QMatrix = new float[16];
-		createMatrix(QMatrix, QResult);
+		createMatrix(QMatrix, qResult);
 
 		Vector3f vert = new Vector3f();
 		/*
@@ -414,15 +414,15 @@ public class PlayerShip {
 	// Get the look vectors for the camera
 	public void GetCameraVectors(Vector3f CameraPos, Vector3f CameraTarget, Vector3f CameraUp) {
 		// Copy all vectors as needed for the camera
-		CameraPos.set(Position.x, Position.y, Position.z);
-		CameraTarget.set(Forward.x + Position.x, Forward.y + Position.y, Forward.z + Position.z);
-		CameraUp.set(Up.x, Up.y, Up.z);
+		CameraPos.set(position.x, position.y, position.z);
+		CameraTarget.set(forward.x + position.x, forward.y + position.y, forward.z + position.z);
+		CameraUp.set(up.x, up.y, up.z);
 	}
 
 	// Get yaw of ship
 	public float GetYaw() {
 		// Cast down the forward and right vectors onto the XZ plane
-		Vector3f FFlat = new Vector3f(Forward.x, 0f, Forward.z);
+		Vector3f FFlat = new Vector3f(forward.x, 0f, forward.z);
 		Vector3f RFlat = new Vector3f(1f, 0f, 0f);
 
 		// Angle between
@@ -434,10 +434,10 @@ public class PlayerShip {
 
 	// Get velocity
 	public float GetRealVelocity() {
-		return RealVelocity;
+		return realVelocity;
 	}
 
 	public float GetTargetVelocity() {
-		return TargetVelocity;
+		return targetVelocity;
 	}
 }

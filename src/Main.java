@@ -21,20 +21,20 @@ public class Main {
 	public static final int DISPLAY_WIDTH = 1400;
 
 	// Renderable items
-	PlayerShip TestShip;
-	World TestWorld;
-	UserInterface UI;
+	PlayerShip testShip;
+	World testWorld;
+	UserInterface ui;
 
 	// Debug var
-	float Time;
+	float time;
 
 	// Ship / camera variables
-	Vector3f CameraPos = new Vector3f();
-	Vector3f CameraTarget = new Vector3f();
-	Vector3f CameraUp = new Vector3f();
+	Vector3f cameraPos = new Vector3f();
+	Vector3f cameraTarget = new Vector3f();
+	Vector3f cameraUp = new Vector3f();
 
 	// Camera state
-	boolean CameraType = false;
+	boolean cameraType = false;
 
 	public static void main(String[] args) {
 		Main main = null;
@@ -73,17 +73,17 @@ public class Main {
 		resizeGL();
 
 		// Create our world and ships
-		TestWorld = new World();
-		TestShip = new PlayerShip();
-		UI = new UserInterface();
+		testWorld = new World();
+		testShip = new PlayerShip();
+		ui = new UserInterface();
 
 		// Setup fog
 		glFogi(GL_FOG_MODE, GL_EXP);
 		// glFogfv(GL_FOG_COLOR, fogColor);
 		glFogf(GL_FOG_DENSITY, 0.01f);
 		glHint(GL_FOG_HINT, GL_DONT_CARE);
-		glFogf(GL_FOG_START, World.SkyboxSize);
-		glFogf(GL_FOG_END, World.SkyboxSize * 2);
+		glFogf(GL_FOG_START, World.skyboxSize);
+		glFogf(GL_FOG_END, World.skyboxSize * 2);
 		glEnable(GL_FOG);
 	}
 
@@ -159,53 +159,53 @@ public class Main {
 		// public static void gluLookAt(float eyex, float eyey, float eyez,
 		// float centerx, float centery, float centerz, float upx, float upy,
 		// float upz)
-		Time += 0.001f;
+		time += 0.001f;
 		float CDist = 6;
 
 		// Set the camera on the back of the
-		TestShip.GetCameraVectors(CameraPos, CameraTarget, CameraUp);
+		testShip.GetCameraVectors(cameraPos, cameraTarget, cameraUp);
 
 		// Tail-plane camera
-		if (CameraType) {
+		if (cameraType) {
 			// Extend out the camera by length
 			Vector3f Dir = new Vector3f();
-			Vector3f.sub(CameraPos, CameraTarget, Dir);
+			Vector3f.sub(cameraPos, cameraTarget, Dir);
 			Dir.normalise();
 			Dir.scale(4);
 			Dir.y += 0.1f;
-			Vector3f.add(CameraPos, Dir, CameraPos);
-			CameraPos.y += 1;
+			Vector3f.add(cameraPos, Dir, cameraPos);
+			cameraPos.y += 1;
 
 			// Little error correction: always make the camera above ground
-			if (CameraPos.y < 0.01f)
-				CameraPos.y = 0.01f;
+			if (cameraPos.y < 0.01f)
+				cameraPos.y = 0.01f;
 
-			GLU.gluLookAt(CameraPos.x, CameraPos.y, CameraPos.z, CameraTarget.x, CameraTarget.y, CameraTarget.z,
-					CameraUp.x, CameraUp.y, CameraUp.z);
+			GLU.gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, cameraTarget.x, cameraTarget.y, cameraTarget.z,
+					cameraUp.x, cameraUp.y, cameraUp.z);
 		}
 		// Overview
 		else {
-			GLU.gluLookAt(CDist * (float) Math.cos(Time), CDist, CDist * (float) Math.sin(Time), CameraPos.x,
-					CameraPos.y, CameraPos.z, 0, 1, 0);
+			GLU.gluLookAt(CDist * (float) Math.cos(time), CDist, CDist * (float) Math.sin(time), cameraPos.x,
+					cameraPos.y, cameraPos.z, 0, 1, 0);
 		}
 
 		// Always face forward
-		float Yaw = (float) Math.toDegrees(TestShip.GetYaw());
+		float yaw = (float) Math.toDegrees(testShip.GetYaw());
 
 		// Render all elements
-		TestWorld.Render(CameraPos, Yaw);
-		TestShip.Render();
+		testWorld.Render(cameraPos, yaw);
+		testShip.Render();
 
 		// 2D GUI
 		resizeGL2D();
-		UI.Render(TestShip.GetRealVelocity(), TestShip.GetTargetVelocity(), PlayerShip.VEL_MAX);
+		ui.Render(testShip.GetRealVelocity(), testShip.GetTargetVelocity(), PlayerShip.VEL_MAX);
 	}
 
 	public void update() {
 		// Did the camera change?
 		if (Keyboard.isKeyDown(Keyboard.KEY_Q))
-			CameraType = !CameraType;
+			cameraType = !cameraType;
 
-		TestShip.Update();
+		testShip.Update();
 	}
 }
