@@ -39,3 +39,7 @@ build*
 dist*
 build/*
 dist/*
+/bin/
+/.classpath
+/.project
+/.gitignore~
