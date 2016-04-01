@@ -35,7 +35,7 @@ class Models {
  */
 public class World {
 	// Box size
-	public static float skyboxSize = 32.0f;
+	public static float skyboxSize = 64.0f;
 	public static float worldSize = 1024.0f;
 
 	// List of stars (list of Vector3f)
@@ -79,19 +79,20 @@ public class World {
 		// Load road strip
 		Models model = new Models();
 		model.model = OBJLoader.load("src/Road.obj");
+		model.pt.y = 0.1f;
 		model.yaw = 0f;
 		modelList.add(model);
 
 		// Load a bunch of rocks..
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 1000; i++) {
 			int Index = (int) (Math.random() * 5f) + 1;
 
 			Models newModel = new Models();
 			newModel.model = OBJLoader.load("src/Rock" + Index + ".obj");
 			newModel.yaw = (float) (Math.random() * 2.0 * Math.PI);
 
-			newModel.pt.x = (float) (Math.random() * 2.0 - 1.0) * skyboxSize;
-			newModel.pt.z = (float) (Math.random() * 2.0 - 1.0) * skyboxSize;
+			newModel.pt.x = (float) (Math.random() * 2.0 - 1.0) * worldSize;
+			newModel.pt.z = (float) (Math.random() * 2.0 - 1.0) * worldSize;
 			newModel.pt.y = 0f;
 
 			modelList.add(newModel);
@@ -99,13 +100,13 @@ public class World {
 	}
 
 	// Render the ship
-	public void Render(Vector3f Pos, float Yaw) {
+	public void Render(Vector3f pos, float yaw) {
 		// Rotate (yaw) as needed so the player always faces non-corners
 		GL11.glPushMatrix();
 
 		// Rotate and translate
-		GL11.glTranslatef(Pos.x, Pos.y, Pos.z);
-		GL11.glRotatef(Yaw, 0f, 1f, 0f);
+		GL11.glTranslatef(pos.x, pos.y, pos.z);
+		GL11.glRotatef(yaw, 0f, 1f, 0f);
 
 		// Render the skybox and stars
 		RenderSkybox();
@@ -117,7 +118,7 @@ public class World {
 		GL11.glPushMatrix();
 
 		// Show stars
-		GL11.glTranslatef(Pos.x, Pos.y * 0.99f, Pos.z);
+		GL11.glTranslatef(pos.x, pos.y * 0.99f, pos.z);
 		RenderStars();
 
 		// Be done
@@ -127,9 +128,9 @@ public class World {
 		GL11.glPushMatrix();
 
 		// Render ground and right below
-		GL11.glTranslatef(Pos.x, 0, Pos.z);
+		GL11.glTranslatef(pos.x, 0, pos.z);
 
-		Vector3f Color = new Vector3f(236.0f / 255.0f, 200.0f / 255.0f, 122.0f / 255.0f);
+		Vector3f Color = new Vector3f(115.0f / 255.0f, 200.0f / 255.0f, 125.0f / 255.0f);
 		RenderGround(worldSize, Color);
 
 		GL11.glPopMatrix();
@@ -148,17 +149,17 @@ public class World {
 	}
 
 	// Draw the bottom level
-	public void RenderGround(float WorldLength, Vector3f Color) {
+	public void RenderGround(float worldLength, Vector3f color) {
 		// Translate to position
 		GL11.glPushMatrix();
 
 		// Set the ship color to red for now
-		GL11.glColor3f(Color.x, Color.y, Color.z);
+		GL11.glColor3f(color.x, color.y, color.z);
 		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glVertex3f(-WorldLength, 0, -WorldLength);
-		GL11.glVertex3f(WorldLength, 0, -WorldLength);
-		GL11.glVertex3f(WorldLength, 0, WorldLength);
-		GL11.glVertex3f(-WorldLength, 0, WorldLength);
+		GL11.glVertex3f(-worldLength, 0, -worldLength);
+		GL11.glVertex3f(worldLength, 0, -worldLength);
+		GL11.glVertex3f(worldLength, 0, worldLength);
+		GL11.glVertex3f(-worldLength, 0, worldLength);
 		GL11.glEnd();
 
 		// Done
@@ -168,8 +169,8 @@ public class World {
 	// Render the
 	public void RenderSkybox() {
 		// Define the top and bottom color
-		Vector3f TopColor = new Vector3f(204f / 255f, 255f / 255f, 255f / 255f);
-		Vector3f BottomColor = new Vector3f(207f / 255f, 179f / 255f, 52f / 255f);
+		Vector3f topColor = new Vector3f(85f / 255f, 225f / 255f, 255f / 255f);
+		Vector3f bottomColor = new Vector3f(155f / 255f, 245f / 255f, 255f / 255f);
 
 		// Save matrix
 		glPushMatrix();
@@ -179,7 +180,7 @@ public class World {
 
 		// Polygon & texture map
 		// Top has one constant color
-		glColor3f(TopColor.x, TopColor.y, TopColor.z);
+		glColor3f(topColor.x, topColor.y, topColor.z);
 		glVertex3f(-skyboxSize, skyboxSize, -skyboxSize);
 		glVertex3f(skyboxSize, skyboxSize, -skyboxSize);
 		glVertex3f(skyboxSize, skyboxSize, skyboxSize);
@@ -187,58 +188,58 @@ public class World {
 
 		glEnd();
 
-		// Drow out the left side
+		// Draw out the left side
 		glBegin(GL_QUADS);
 
 		// Polygon & texture map
-		glColor3f(TopColor.x, TopColor.y, TopColor.z);
+		glColor3f(topColor.x, topColor.y, topColor.z);
 		glVertex3f(skyboxSize, skyboxSize, -skyboxSize);
-		glColor3f(BottomColor.x, BottomColor.y, BottomColor.z);
+		glColor3f(bottomColor.x, bottomColor.y, bottomColor.z);
 		glVertex3f(skyboxSize, -skyboxSize, -skyboxSize);
 		glVertex3f(skyboxSize, -skyboxSize, skyboxSize);
-		glColor3f(TopColor.x, TopColor.y, TopColor.z);
+		glColor3f(topColor.x, topColor.y, topColor.z);
 		glVertex3f(skyboxSize, skyboxSize, skyboxSize);
 
 		glEnd();
 
-		// Drow out the right side
+		// Draw out the right side
 		glBegin(GL_QUADS);
 
 		// Polygon & texture map
-		glColor3f(TopColor.x, TopColor.y, TopColor.z);
+		glColor3f(topColor.x, topColor.y, topColor.z);
 		glVertex3f(-skyboxSize, skyboxSize, skyboxSize);
-		glColor3f(BottomColor.x, BottomColor.y, BottomColor.z);
+		glColor3f(bottomColor.x, bottomColor.y, bottomColor.z);
 		glVertex3f(-skyboxSize, -skyboxSize, skyboxSize);
 		glVertex3f(-skyboxSize, -skyboxSize, -skyboxSize);
-		glColor3f(TopColor.x, TopColor.y, TopColor.z);
+		glColor3f(topColor.x, topColor.y, topColor.z);
 		glVertex3f(-skyboxSize, skyboxSize, -skyboxSize);
 
 		glEnd();
 
-		// Drow out the front side
+		// Draw out the front side
 		glBegin(GL_QUADS);
 
 		// Polygon & texture map
-		glColor3f(TopColor.x, TopColor.y, TopColor.z);
+		glColor3f(topColor.x, topColor.y, topColor.z);
 		glVertex3f(skyboxSize, skyboxSize, skyboxSize);
-		glColor3f(BottomColor.x, BottomColor.y, BottomColor.z);
+		glColor3f(bottomColor.x, bottomColor.y, bottomColor.z);
 		glVertex3f(skyboxSize, -skyboxSize, skyboxSize);
 		glVertex3f(-skyboxSize, -skyboxSize, skyboxSize);
-		glColor3f(TopColor.x, TopColor.y, TopColor.z);
+		glColor3f(topColor.x, topColor.y, topColor.z);
 		glVertex3f(-skyboxSize, skyboxSize, skyboxSize);
 
 		glEnd();
 
-		// Drow out the back side
+		// Draw out the back side
 		glBegin(GL_QUADS);
 
 		// Polygon & texture map
-		glColor3f(TopColor.x, TopColor.y, TopColor.z);
+		glColor3f(topColor.x, topColor.y, topColor.z);
 		glVertex3f(-skyboxSize, skyboxSize, -skyboxSize);
-		glColor3f(BottomColor.x, BottomColor.y, BottomColor.z);
+		glColor3f(bottomColor.x, bottomColor.y, bottomColor.z);
 		glVertex3f(-skyboxSize, -skyboxSize, -skyboxSize);
 		glVertex3f(skyboxSize, -skyboxSize, -skyboxSize);
-		glColor3f(TopColor.x, TopColor.y, TopColor.z);
+		glColor3f(topColor.x, topColor.y, topColor.z);
 		glVertex3f(skyboxSize, skyboxSize, -skyboxSize);
 
 		glEnd();
@@ -262,7 +263,7 @@ public class World {
 	// Render a model or shape
 	public void RenderModel(Model model) {
 		// Set width to a single line
-		GL11.glLineWidth(1);
+		GL11.glLineWidth(0);
 
 		// Change rendermode
 		for (int i = 0; i < 2; i++) {

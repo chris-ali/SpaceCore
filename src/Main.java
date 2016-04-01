@@ -43,7 +43,7 @@ public class Main {
 			main.create();
 			main.run();
 		} catch (Exception ex) {
-			System.out.println("Error: " + ex.toString());
+			ex.printStackTrace();
 		} finally {
 			if (main != null)
 				main.destroy();
@@ -79,11 +79,10 @@ public class Main {
 
 		// Setup fog
 		glFogi(GL_FOG_MODE, GL_EXP);
-		// glFogfv(GL_FOG_COLOR, fogColor);
-		glFogf(GL_FOG_DENSITY, 0.01f);
+		glFogf(GL_FOG_DENSITY, 0.0025f);
 		glHint(GL_FOG_HINT, GL_DONT_CARE);
 		glFogf(GL_FOG_START, World.skyboxSize);
-		glFogf(GL_FOG_END, World.skyboxSize * 2);
+		glFogf(GL_FOG_END, World.skyboxSize * 4);
 		glEnable(GL_FOG);
 	}
 
